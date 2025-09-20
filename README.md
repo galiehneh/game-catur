@@ -27,8 +27,8 @@ Sebuah game catur interaktif yang dapat dimainkan melawan komputer dengan antarm
    docker-run.bat
 
    # Atau manual dengan Docker commands:
-   docker build -t chess-game .
-   docker run -d -p 3000:80 --name chess-game chess-game
+   docker build -t game-catur .
+   docker run -d -p 3000:80 --name game-catur game-catur
    ```
 
 3. **Akses game**:
@@ -80,27 +80,27 @@ game-catur/
 
 ### Build Image
 ```bash
-docker build -t chess-game .
+docker build -t game-catur .
 ```
 
 ### Run Container
 ```bash
-docker run -d -p 3000:80 --name chess-game chess-game
+docker run -d -p 3000:80 --name game-catur game-catur
 ```
 
 ### Stop Container
 ```bash
-docker stop chess-game
+docker stop game-catur
 ```
 
 ### Remove Container
 ```bash
-docker rm chess-game
+docker rm game-catur
 ```
 
 ### View Logs
 ```bash
-docker logs chess-game
+docker logs game-catur
 ```
 
 ## 🔧 Development
@@ -155,16 +155,16 @@ docker logs chess-game
 docker ps -a
 
 # Check logs
-docker logs chess-game
+docker logs game-catur
 
 # Restart container
-docker restart chess-game
+docker restart game-catur
 ```
 
 ### Port 3000 Sudah Digunakan
 ```bash
 # Gunakan port lain
-docker run -d -p 3001:80 --name chess-game chess-game
+docker run -d -p 3001:80 --name game-catur game-catur
 ```
 
 ## 📝 Lisensi
