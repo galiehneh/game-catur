@@ -43,6 +43,7 @@ Sebuah game catur interaktif yang dapat dimainkan melawan komputer dengan antarm
 ## 🛠️ Teknologi yang Digunakan
 
 - **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
+- **Chess Engine**: Custom implementation dengan vanilla JavaScript
 - **Container**: Docker dengan Nginx Alpine
 - **Font**: Noto Sans Symbols untuk mendukung Unicode chess pieces
 - **Deployment**: Docker container di port 3000
@@ -51,20 +52,13 @@ Sebuah game catur interaktif yang dapat dimainkan melawan komputer dengan antarm
 
 ```
 game-catur/
-├── index.html          # File utama game catur
+├── index.html          # File utama game catur (menggunakan custom chess engine)
 ├── Dockerfile          # Konfigurasi Docker container
 ├── docker-run.bat      # Script deployment untuk Windows
-├── README.md           # Dokumentasi proyek
-├── chess-game.html     # Versi alternatif game
-├── chess.html          # Versi sederhana
-├── chess.js            # JavaScript untuk logika catur
-├── simple-chess-game.html
-├── simple-chess.html
-├── simple-chess.js
-├── working-chess.html
-├── final-chess.html
-└── run_server.bat     # Script untuk menjalankan server lokal
+└── README.md           # Dokumentasi proyek
 ```
+
+**Catatan**: Proyek saat ini berisi file-file utama yang diperlukan untuk menjalankan game catur. File-file tambahan yang disebutkan dalam dokumentasi sebelumnya mungkin telah dipindahkan atau diarsipkan.
 
 ## 🎯 Cara Bermain
 
@@ -116,18 +110,19 @@ docker logs game-catur
 4. Untuk testing Docker: rebuild image dan run container baru
 
 ### File Utama
-- `index.html`: Berisi seluruh game logic, UI, dan styling
-- `Dockerfile`: Konfigurasi container Nginx
-- `docker-run.bat`: Script otomatis untuk deployment
+- `index.html`: File utama yang berisi seluruh game logic, UI, dan styling dalam satu file
+- `Dockerfile`: Konfigurasi container Nginx untuk deployment
+- `docker-run.bat`: Script otomatis untuk deployment di Windows
 
 ## 🎨 Fitur Teknis
 
-### Chess Logic
-- Validasi gerakan untuk semua jenis pion (pawn, rook, knight, bishop, queen, king)
-- Deteksi check dan checkmate
-- Pawn promotion
-- Castling (rook + king movement)
-- En passant capture
+### Chess Logic (Custom Implementation)
+- **Custom Chess Engine**: Dibuat dari nol dengan vanilla JavaScript
+- **Move Validation**: Validasi gerakan untuk semua jenis pion (pawn, rook, knight, bishop, queen, king)
+- **Game State Management**: Deteksi check dan checkmate otomatis
+- **Special Moves**: Pawn promotion, castling, dan en passant capture
+- **AI Opponent**: Komputer dengan algoritma minimax untuk permainan yang menantang
+- **Move History**: Sistem undo untuk membatalkan langkah terakhir
 
 ### UI/UX
 - Grid 8x8 dengan warna kotak bergantian

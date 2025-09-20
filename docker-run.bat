@@ -17,4 +17,4 @@ echo Starting new container on port 3000...
 docker run -d -p 3000:80 --name game-catur game-catur
 
 echo Deployment complete! Access the chess game at http://localhost:3000
-pause
+REM pause
