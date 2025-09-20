@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Working Chess Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        
+        .game-container {
+            text-align: center;
+        }
+        
+        .chessboard {
+            display: grid;
+            grid-template-columns: repeat(8, 60px);
+            grid-template-rows: repeat(8, 60px);
+            border: 3px solid #333;
+            margin: 20px auto;
+        }
+        
+        .square {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .white {
+            background-color: #f0d9b5;
+        }
+        
+        .black {
+            background-color: #b58863;
+        }
+        
+        .highlight {
+            background-color: #aec6cf !important;
+        }
+        
+        .last-move {
+            background-color: #90ee90 !important;
+        }
+        
+        .controls {
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 0 10px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        .status {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Chess Game</h1>
+        <div class="status" id="status">White's turn</div>
+        <div class="chessboard" id="board"></div>
+        <div class="controls">
+            <button id="newGame">New Game</button>
+            <button id="undo">Undo</button>
+        </div>
+        
+        <script>
+            // Chess piece symbols
+            const PIECES = {
+                'wp': '♙', 'wr': '♖', 'wn': '♘', 'wb': '♗', 'wq': '♕', 'wk': '♔',
+                'bp': '♟', 'br': '♜', 'bn': '♞', 'bb': '♝', 'bq': '♛', 'bk': '♚'
+            };
+            
+            // Game state
+            let board = [];
+            let currentPlayer = 'w';
+            let selectedSquare = null;
+            let lastMove = null;
+            let moveHistory = [];
+            
+            // Initialize the board
+            function initBoard() {
+                board = Array(8).fill().map(() => Array(8).fill(null));
+                
+                // Set up pawns
+                for (let i = 0; i < 8; i++) {
+                    board[1][i] = 'bp'; // Black pawns
+                    board[6][i] = 'wp'; // White pawns
+                }
+                
+                // Set up other pieces
+                // Black pieces (row 0)
+                board[0][0] = 'br'; board[0][1] = 'bn'; board[0][2] = 'bb'; 
+                board[0][3] = 'bq'; board[0][4] = 'bk'; board[0][5] = 'bb';
+                board[0][6] = 'bn'; board[0][7] = 'br';
+                
+                // White pieces (row 7)
+                board[7][0] = 'wr'; board[7][1] = 'wn'; board[7][2] = 'wb';
+                board[7][3] = 'wq'; board[7][4] = 'wk'; board[7][5] = 'wb';
+                board[7][6] = 'wn'; board[7][7] = 'wr';
+            }
+            
+            // Render the board
+            function renderBoard() {
+                const boardElement = document.getElementById('board');
+                boardElement.innerHTML = '';
+                
+                for (let row = 0; row < 8; row++) {
+                    for (let col = 0; col < 8; col++) {
+                        const square = document.createElement('div');
+                        square.className = (row + col) % 2 === 0 ? 'white square' : 'black square';
+                        square.dataset.row = row;
+                        square.dataset.col = col;
+                        
+                        // Highlight last move
+                        if (lastMove && 
+                            ((lastMove.fromRow === row && lastMove.fromCol === col) || 
+                             (lastMove.toRow === row && lastMove.toCol === col))) {
+                            square.classList.add('last-move');
+                        }
+                        
+                        // Add piece if exists
+                        const piece = board[row][col];
+                        if (piece) {
+                            square.textContent = PIECES[piece];
+                        }
+                        
+                        square.addEventListener('click', () => handleSquareClick(row, col));
+                        boardElement.appendChild(square);
+                    }
+                }
+                
+                // Update status
+                document.getElementById('status').textContent = 
+                    (currentPlayer === 'w' ? 'White' : 'Black') + "'s turn";
+            }
+            
+            // Handle square click
+            function handleSquareClick(row, col) {
+                // If clicking on a piece of current player
+                const piece = board[row][col];
+                if (piece && piece[0] === currentPlayer) {
+                    // Select this piece
+                    selectedSquare = {row, col};
+                    highlightSquare(row, col);
+                    return;
+                }
+                
+                // If a piece is selected and clicking on empty square or opponent's piece
+                if (selectedSquare) {
+                    // Save state for undo
+                    moveHistory.push({
+                        board: JSON.parse(JSON.stringify(board)),
+                        currentPlayer: currentPlayer,
+                        lastMove: lastMove
+                    });
+                    
+                    // Move the piece
+                    board[row][col] = board[selectedSquare.row][selectedSquare.col];
+                    board[selectedSquare.row][selectedSquare.col] = null;
+                    
+                    // Record last move
+                    lastMove = {
+                        fromRow: selectedSquare.row,
+                        fromCol: selectedSquare.col,
+                        toRow: row,
+                        toCol: col
+                    };
+                    
+                    // Switch player
+                    currentPlayer = currentPlayer === 'w' ? 'b' : 'w';
+                    
+                    // Clear selection
+                    selectedSquare = null;
+                    clearHighlights();
+                    
+                    // Re-render
+                    renderBoard();
+                }
+            }
+            
+            // Highlight a square
+            function highlightSquare(row, col) {
+                clearHighlights();
+                const square = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                if (square) {
+                    square.classList.add('highlight');
+                }
+            }
+            
+            // Clear all highlights
+            function clearHighlights() {
+                document.querySelectorAll('.square').forEach(square => {
+                    square.classList.remove('highlight');
+                });
+            }
+            
+            // New game
+            function newGame() {
+                initBoard();
+                currentPlayer = 'w';
+                selectedSquare = null;
+                lastMove = null;
+                moveHistory = [];
+                clearHighlights();
+                renderBoard();
+            }
+            
+            // Undo move
+            function undoMove() {
+                if (moveHistory.length > 0) {
+                    const prevState = moveHistory.pop();
+                    board = prevState.board;
+                    currentPlayer = prevState.currentPlayer;
+                    lastMove = prevState.lastMove;
+                    selectedSquare = null;
+                    clearHighlights();
+                    renderBoard();
+                }
+            }
+            
+            // Initialize game when page loads
+            window.onload = function() {
+                initBoard();
+                renderBoard();
+                
+                // Add event listeners
+                document.getElementById('newGame').addEventListener('click', newGame);
+                document.getElementById('undo').addEventListener('click', undoMove);
+            };
+        </script>
+    </div>
+</body>
+</html>

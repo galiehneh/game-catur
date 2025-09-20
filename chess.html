@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Chess Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        
+        .game {
+            text-align: center;
+        }
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(8, 50px);
+            grid-template-rows: repeat(8, 50px);
+            border: 2px solid #333;
+            margin: 20px auto;
+        }
+        
+        .square {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            cursor: pointer;
+        }
+        
+        .white {
+            background-color: #f0d9b5;
+        }
+        
+        .black {
+            background-color: #b58863;
+        }
+        
+        .selected {
+            background-color: #aec6cf !important;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="game">
+        <h1>Simple Chess Game</h1>
+        <div id="status">White's turn</div>
+        <div class="board" id="chessboard"></div>
+        <button onclick="resetGame()">New Game</button>
+        
+        <script>
+            // Papan catur
+            let board = [];
+            let currentPlayer = 'white';
+            let selectedPiece = null;
+            
+            // Inisialisasi papan
+            function initBoard() {
+                board = Array(8).fill().map(() => Array(8).fill(null));
+                
+                // Bidak hitam
+                for (let i = 0; i < 8; i++) {
+                    board[1][i] = {type: 'pawn', color: 'black', symbol: '♟'};
+                }
+                board[0][0] = {type: 'rook', color: 'black', symbol: '♜'};
+                board[0][1] = {type: 'knight', color: 'black', symbol: '♞'};
+                board[0][2] = {type: 'bishop', color: 'black', symbol: '♝'};
+                board[0][3] = {type: 'queen', color: 'black', symbol: '♛'};
+                board[0][4] = {type: 'king', color: 'black', symbol: '♚'};
+                board[0][5] = {type: 'bishop', color: 'black', symbol: '♝'};
+                board[0][6] = {type: 'knight', color: 'black', symbol: '♞'};
+                board[0][7] = {type: 'rook', color: 'black', symbol: '♜'};
+                
+                // Bidak putih
+                for (let i = 0; i < 8; i++) {
+                    board[6][i] = {type: 'pawn', color: 'white', symbol: '♙'};
+                }
+                board[7][0] = {type: 'rook', color: 'white', symbol: '♖'};
+                board[7][1] = {type: 'knight', color: 'white', symbol: '♘'};
+                board[7][2] = {type: 'bishop', color: 'white', symbol: '♗'};
+                board[7][3] = {type: 'queen', color: 'white', symbol: '♕'};
+                board[7][4] = {type: 'king', color: 'white', symbol: '♔'};
+                board[7][5] = {type: 'bishop', color: 'white', symbol: '♗'};
+                board[7][6] = {type: 'knight', color: 'white', symbol: '♘'};
+                board[7][7] = {type: 'rook', color: 'white', symbol: '♖'};
+            }
+            
+            // Render papan
+            function renderBoard() {
+                const chessboard = document.getElementById('chessboard');
+                chessboard.innerHTML = '';
+                
+                for (let row = 0; row < 8; row++) {
+                    for (let col = 0; col < 8; col++) {
+                        const square = document.createElement('div');
+                        square.className = (row + col) % 2 === 0 ? 'white square' : 'black square';
+                        square.dataset.row = row;
+                        square.dataset.col = col;
+                        
+                        const piece = board[row][col];
+                        if (piece) {
+                            square.textContent = piece.symbol;
+                        }
+                        
+                        square.addEventListener('click', () => handleClick(row, col));
+                        chessboard.appendChild(square);
+                    }
+                }
+                
+                document.getElementById('status').textContent = currentPlayer.charAt(0).toUpperCase() + currentPlayer.slice(1) + "'s turn";
+            }
+            
+            // Handle klik
+            function handleClick(row, col) {
+                // Jika sudah ada bidak yang dipilih
+                if (selectedPiece) {
+                    // Pindahkan bidak
+                    board[row][col] = selectedPiece.piece;
+                    board[selectedPiece.row][selectedPiece.col] = null;
+                    
+                    // Reset seleksi
+                    clearSelection();
+                    
+                    // Ganti giliran
+                    currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
+                    renderBoard();
+                    return;
+                }
+                
+                // Pilih bidak jika sesuai giliran
+                const piece = board[row][col];
+                if (piece && piece.color === currentPlayer) {
+                    selectedPiece = {piece, row, col};
+                    renderBoard();
+                    highlightSquare(row, col);
+                }
+            }
+            
+            // Highlight kotak
+            function highlightSquare(row, col) {
+                const square = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                if (square) {
+                    square.classList.add('selected');
+                }
+            }
+            
+            // Clear seleksi
+            function clearSelection() {
+                selectedPiece = null;
+                renderBoard();
+            }
+            
+            // Reset game
+            function resetGame() {
+                initBoard();
+                currentPlayer = 'white';
+                selectedPiece = null;
+                renderBoard();
+            }
+            
+            // Mulai game
+            window.onload = function() {
+                initBoard();
+                renderBoard();
+            };
+        </script>
+    </div>
+</body>
+</html>
